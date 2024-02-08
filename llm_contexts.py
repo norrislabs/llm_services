@@ -146,7 +146,7 @@ class ContextInstruct(Context):
                  streamer: Union[BaseCallbackHandler, None] = None):
         super().__init__(name, llm, template_file, history_count, system_prompt, summerizer_type, streamer)
 
-        self._template = None
+        self._j_template = None
         self.load_template(template_file)
 
     def erase_memory(self):
@@ -172,8 +172,8 @@ class ContextInstruct(Context):
         messages.append(query)
         messages.append({"role": "assistant", "content": ""})
 
-        # Use messages to render prompt template (jinja)
-        self._template_text = self._template.render(messages=messages)
+        # Use the above messages to render prompt template using jinja2
+        self._template_text = self._j_template.render(messages=messages)
         prompt = PromptTemplate.from_template(self._template_text)
         chain = LLMChain(llm=self._llm, prompt=prompt, verbose=False)
 
@@ -206,9 +206,9 @@ class ContextInstruct(Context):
     def load_template(self, template_file) -> bool:
         try:
             j_environ = Environment(loader=FileSystemLoader("templates/"))
-            self._template = j_environ.get_template(template_file)
+            self._j_template = j_environ.get_template(template_file)
             logging.info("Loaded template '{}' into context {}".format(template_file, self._name))
-            self._template_text = ""
+            self._template_text = ""    # not rendered yet
             self._template_file = template_file
             return True
         except exceptions.TemplateNotFound:
