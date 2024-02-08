@@ -1,0 +1,25 @@
+In a eukaryotic cell, the nucleus plays several essential roles:1. Contains genetic material: The primary function of
+the nucleus is to house the chromatin (condensed form of DNA and associated proteins) and the nucleolus (a dense structure
+where ribosomal RNA is synthesized).2. Controls gene expression: The nucleus serves as the control center for gene
+expression, which involves transcribing genetic information from DNA to messenger RNA (mRNA), and then translating that mRNA into
+proteins. This process allows cells to respond to various environmental stimuli by producing specific proteins.3. Maintains
+nuclear envelope: The nucleus is surrounded by a double membrane called the nuclear envelope, which separates the cytoplasm
+from the nucleoplasm (the fluid inside the nucleus). The nuclear envelope plays several roles in maintaining the structural
+and functional integrity of the nucleus, including regulating gene expression, protecting DNA from damage, and facilitating
+the transport of molecules between the nucleus and the cytoplasm.4. Participates in cell division: During mitosis (the
+process by which a eukaryotic cell duplicates its chromosomes and divides its cytoplasm to produce two identical daughter
+cells) or meiosis (the process by which diploid cells divide twice, producing four haploid daughter cells that each contain
+half the number of chromosomes as the original diploid cell), the nucleus undergoes significant changes in structure and
+function. During mitosis, the nuclear envelope breaks down, allowing the chromatin to condense into discrete chromosomes. The
+spindle fibers then attach to the centrosomes (microtubule-organizing centers) at opposite ends of the cell, and begin to pull
+on the chromosomes, causing them to move towards the center of the cell. Once all the chromosomes have reached the
+metaphase plate (the equatorial plane of the cell), they are then distributed evenly between the two daughter cells during
+anaphase, when the spindle fibers shorten and pull on the sister chromatids at each chromosome, causing them to separate from one
+another. Once all the sister chromatids have been separated and pulled towards opposite ends of the cell by the spindle fibers,
+telophase begins, during which new nuclear envelopes form around each set of separated chromosomes, and the chromatin begins to
+decondense back into a less condensed state. Once all the chromatin has decondensed and the nuclear envelope has fully reformed
+around it, cytokinesis (the process by which the cytoplasm is divided in two, forming two separate daughter cells) occurs,
+during which the cell begins to contract in the middle, causing a cleavage furrow to form. The cleavage furrow then deepens
+and eventually pinches off completely, separating the two daughter cells from one another. Once both daughter cells have
+been fully separated from one another by cytokinesis, they are now considered independent entities that can each go on to
+perform their own unique functions within the organism as a whole.

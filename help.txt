@@ -1,0 +1,14 @@
+.quit                                   Exit program
+.cls                                    Clear screen
+.info                                   Display model information
+.restart                                Reset LLM server and model
+.paste                                  Paste the prompt from clipboard
+.start context-name [history-count]     Create a new context
+.switch context-name                    Switch to another existing context
+.del context-name                       Delete a context
+.forget                                 Erase the history from the current context
+.history                                Display the current context's history
+.prompt                                 Set the system prompt for the current context
+.template [show|load] [filename]        Show the current template text or load a template
+.list                                   List all the existing contexts
+.ask [start#] [end#]                    Send selected questions to the LLM (1 - 100)

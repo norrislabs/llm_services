@@ -1,0 +1,13 @@
+There are three main types of rocks based on their mineral composition, texture, and
+mode of formation:1. <*Igneous Rocks**: These rocks form when molten magma or semi-molten lava cools down and solidifies
+over time. The minerals in igneous rocks crystallize from the melt during cooling. Examples include granite, basalt, and
+gabbro.2. <*Sedimentary Rocks**: These rocks form when mineral grains, organic matter, or rock fragments accumulate and compact
+together due to gravity over long periods of time. The minerals in sedimentary rocks can be derived from the weathering and
+erosion of pre-existing rocks, as well as from biological sources such as shells and fossilized remains. Examples include
+sandstone, shale, limestone, and coal.3. <*Metamorphic Rocks**: These rocks form when existing igneous, sedimentary, or even
+metamorphic rocks undergo a process of transformation due to exposure to high temperatures, pressures, or chemically active fluids
+over long periods of time. The minerals in metamorphic rocks rearrange themselves into new mineral structures that are
+better suited for the new conditions. Examples include marble (a metamorphosed limestone), schist (a foliated metamorphic rock
+composed mainly of mica and quartz), gneiss (a banded metamorphic rock characterized by alternating light and dark bands,
+consisting primarily of feldspar and quartz), and slate (a fine-grained, homogeneous metamorphic rock derived from an original
+shale or mudstone).
