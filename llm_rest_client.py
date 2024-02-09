@@ -48,10 +48,12 @@ class ContextClient:
             resp = requests.post(self._con_url + self._name, json=json)
             if resp.status_code == 200:
                 self._last_loaded_template = template
-                self.get_template()
+                tresp = self.get_template()
+                if not tresp:
+                    return False, 422, {}
 
-        except requests.exceptions.ConnectionError as ex:
-            return False, ex, {}
+        except requests.exceptions.ConnectionError:
+            return False, 422, {}
         else:
             return self._build_return_status(resp)
 
@@ -91,8 +93,9 @@ class ContextClient:
     def get_template(self):
         resp = requests.get(self._con_url + "template/" + self._name)
         result = self._build_return_status(resp)
-        ttext: str = result[2]['detail']
-        self._last_loaded_template, remainder = ttext.split('|', 1)
+        if resp.status_code == 200:
+            ttext: str = result[2]['detail']
+            self._last_loaded_template, _ = ttext.split('|', 1)
         return result
 
     # Send directive (prompt) to the context and return a response generator

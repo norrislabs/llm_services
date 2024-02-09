@@ -37,7 +37,7 @@ def start_context(context_name, host, port, history=2):
     next_color_index = len(contexts) % len(conv_colors)
     context_colors[context_name] = conv_colors[next_color_index - 1]
 
-    # Switch to this new conversation
+    # Switch to this new context
     current_context = context_name
     return True, con_client
 
@@ -281,7 +281,7 @@ if __name__ == "__main__":
                             tfile, remainder = templ[2]['detail'].split('|', 1)
                             if len(remainder.strip()) == 0:
                                 remainder = "Template has not be rendered yet."
-                            print_info("{}, {}".format(tfile, remainder), 2)
+                            print_info("Loaded from '{}'\n {}".format(tfile, remainder), 2)
                         else:
                             print_warning(templ[2]['detail'], 2)
                         continue

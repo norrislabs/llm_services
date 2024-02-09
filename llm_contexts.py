@@ -1,6 +1,6 @@
 import logging
 from typing import Union
-from jinja2 import Environment, FileSystemLoader, exceptions
+from jinja2 import Environment
 from abc import ABC, abstractmethod
 
 import spacy
@@ -53,6 +53,7 @@ class Context(ABC):
             self._summerizer_type = "none"
 
         self._template_text = ""
+        self._template_rendered_text = ""
 
     @abstractmethod
     def erase_memory(self):
@@ -124,7 +125,10 @@ class Context(ABC):
 
     @property
     def template(self):
-        return self._template_text
+        if self._template_rendered_text:
+            return self._template_rendered_text
+        else:
+            return self._template_text
 
     @property
     def template_file(self):
@@ -173,8 +177,8 @@ class ContextInstruct(Context):
         messages.append({"role": "assistant", "content": ""})
 
         # Use the above messages to render prompt template using jinja2
-        self._template_text = self._j_template.render(messages=messages)
-        prompt = PromptTemplate.from_template(self._template_text)
+        self._template_rendered_text = self._j_template.render(messages=messages)
+        prompt = PromptTemplate.from_template(self._template_rendered_text)
         chain = LLMChain(llm=self._llm, prompt=prompt, verbose=False)
 
         # Invoke the LLM!
@@ -205,15 +209,20 @@ class ContextInstruct(Context):
 
     def load_template(self, template_file) -> bool:
         try:
-            j_environ = Environment(loader=FileSystemLoader("templates/"))
-            self._j_template = j_environ.get_template(template_file)
-            logging.info("Loaded template '{}' into context {}".format(template_file, self._name))
-            self._template_text = ""    # not rendered yet
-            self._template_file = template_file
-            return True
-        except exceptions.TemplateNotFound:
+            with open('templates/' + template_file, 'r') as f:
+                lines = f.readlines()
+                # Throw out the first line which has the context type
+                self._template_text = ''.join(lines[1:])
+        except FileNotFoundError:
             logging.warning("Template file '{}' not found.".format(template_file))
             return False
+
+        j_environ = Environment()
+        self._j_template = j_environ.from_string(self._template_text)
+        logging.info("Loaded template '{}' into context {}".format(template_file, self._name))
+        self._template_file = template_file
+        self._template_rendered_text = ""   # Not rendered yet
+        return True
 
 
 class ContextStandard(Context):

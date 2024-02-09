@@ -64,7 +64,7 @@ async def model_info() -> Dict:
 @app.post("/context/{name}")
 def create_context(name: str, cspec: ContextSpec) -> ReturnData:
     if app.extra['llm'].create_context(name,
-                                       template=cspec.template,
+                                       template_file=cspec.template,
                                        history_count=cspec.history,
                                        system_prompt=cspec.system_prompt,
                                        summerizer_type=cspec.summerizer_type,
@@ -121,7 +121,7 @@ def get_template(name: str) -> ReturnData:
         return ReturnData(name=name, detail=templ)
     else:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                            detail="Template for context '{}' has not been rendered yet.".format(name))
+                            detail="Template for context '{}' has not been loaded or rendered.".format(name))
 
 
 @app.put("/context/prompt/{name}")

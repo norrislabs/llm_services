@@ -6,9 +6,10 @@ import uuid
 from typing import Union
 from abc import ABC, abstractmethod
 from pydantic import BaseModel
+import importlib
 
 from llm_streamers import Word2StdoutStreamer, Word2QueueStreamer
-from llm_contexts import Context, ContextInstruct, ContextStandard
+from llm_contexts import Context
 
 
 class Directive(BaseModel):
@@ -24,7 +25,7 @@ class BaseLanguageModel(ABC):
 
     def __init__(self, model, template, verbose=False, **kwargs):
         self._llm, self._model_info = self.create_llm(model, verbose, kwargs)
-        self._default_template = template
+        self._default_template_file = template
 
         self._contexts = {}
         self._directive_queue = queue.Queue()
@@ -89,38 +90,43 @@ class BaseLanguageModel(ABC):
                 time.sleep(0.1)
 
     def create_context(self, context_name: str,
-                       template: Union[str, None] = None,
+                       template_file: Union[str, None] = None,
                        history_count: int = 2,
                        system_prompt: Union[str, None] = None,
                        summerizer_type: str = "abstractive",
                        streamer_type: Union[str, None] = None, **streamer_params) -> bool:
         if context_name not in self._contexts:
-            # Select prompt template
-            templ = template if template else self._default_template
-            if not templ:
+            # Select prompt template (specified here or specified with the LLM)
+            templ_file = template_file if template_file else self._default_template_file
+            if not templ_file:
                 logging.error("Context '{}' does not have a template.".format(context_name))
                 return False
 
-            # Setup streamer
+            # Setup a streamer
             streamer = None
             if streamer_type in self.streamer_types:
                 streamer = self.streamer_types[streamer_type](context_name, **streamer_params)
 
-            # Select context based on the template file's extension
-            if templ.endswith(".tpl"):
-                conv = ContextStandard(context_name, self._llm, templ, history_count,
-                                       system_prompt, summerizer_type, streamer)
-                ctype = "standard"
-            elif templ.endswith(".jinja2"):
-                conv = ContextInstruct(context_name, self._llm, templ, history_count,
-                                       system_prompt, summerizer_type, streamer)
-                ctype = "instruct"
-            else:
-                logging.info("Unknown context type.")
+            # Create context class based on the name located in the first line of the template file
+            try:
+                with open('templates/' + templ_file, 'r') as file:
+                    # Read the first line from the file
+                    template_type = file.readline().strip()
+            except FileNotFoundError:
+                logging.warning("Template file '{}' not found.".format(template_file))
+                return False
+
+            try:
+                # Import the module dynamically
+                module = importlib.import_module("llm_contexts")
+                conv = getattr(module, template_type)(context_name, self._llm, templ_file, history_count,
+                                                      system_prompt, summerizer_type, streamer)
+            except AttributeError:
+                logging.error("Context type '{}' does not exist.".format(template_type))
                 return False
 
             self._contexts[context_name] = conv
-            logging.info("Started {} context '{}' with history of {}.".format(ctype, context_name,
+            logging.info("Started {} context '{}' with history of {}.".format(template_type, context_name,
                                                                               history_count))
             return True
         else:
