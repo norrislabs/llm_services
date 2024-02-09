@@ -8,9 +8,9 @@ import json
 from colorama import Fore
 import pprint
 import pyperclip
+import re
 
 from llm_rest_client import ContextClient, LLMClient
-
 
 current_context = ""
 contexts = {}
@@ -48,7 +48,7 @@ def clear_screen():
 
 def filter_words(theword):
     filter_these = ['response:', 'ai:', 'answer:']
-    return any(theword.lower().startswith(w) for w in filter_these)
+    return any(theword.lower().strip().startswith(w) for w in filter_these)
 
 
 def print_info(msg, indent=0):
@@ -135,7 +135,7 @@ if __name__ == "__main__":
     default_context_name = "{}-{}".format(user_login_id, host_name.split('.')[0])
 
     # Get a context name from the user
-    current_context = click.prompt("Enter a new or existing context name: ", type=str,
+    current_context = click.prompt("Enter a new or existing context name: ", type=click.types.STRING,
                                    default=default_context_name)
 
     # Create a default context
@@ -148,9 +148,9 @@ if __name__ == "__main__":
     while True:
         if not auto_question:
             try:
-                human_msg = input("{}{}:{} ".format(context_colors[current_context],
-                                                    current_context,
-                                                    Fore.RESET)).strip()
+                human_msg = input("{}({}):{} ".format(context_colors[current_context],
+                                                      current_context,
+                                                      Fore.RESET)).strip()
             except EOFError:
                 print(Fore.RESET + "Goodbye and good luck.")
                 break
@@ -361,15 +361,25 @@ if __name__ == "__main__":
             # Send a prompt to the LLM and stream the response
             max_line_len = 120
             current_line_len = 0
+            pattern = r'(.*?)[:\.]\d+\.'
             try:
                 resp_gen, resp_id = contexts[current_context].submit_directive(human_msg)
                 for word in resp_gen:
-                    wd = word.replace("\n", "")
-                    if not filter_words(wd):
+                    if not filter_words(word):
+                        wd = word.replace("\n", "")
+
+                        # Split numbered lines
+                        match = re.match(pattern, wd)
+                        if match is not None:
+                            wd = wd[0:len(match.group(1))+1] + "\n" + wd[len(match.group(1))+1:]
+                            current_line_len = len(match.group(1))+1
+
+                        # Word wrap
                         current_line_len += len(wd) + 1
                         if current_line_len > max_line_len:
                             print('\n', end='', flush=True)
                             current_line_len = 0
+
                         print(context_colors[current_context] + wd + " ", end="", flush=True)
                 print(Fore.RESET)
 
