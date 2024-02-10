@@ -89,8 +89,10 @@ def show_help():
 
 def display_model_info():
     # Display LLM model information
+    global args
     print("Current model information:")
     info = llm_client.get_model_info()[2]
+    info['host'] = args['host'] + ':' + str(args['port'])
     print(json.dumps(info, indent=4))
     print()
 
@@ -117,7 +119,7 @@ if __name__ == "__main__":
     # Display LLM model information
     display_model_info()
 
-    # List current existing conversations
+    # List current existing contexts
     names_status = llm_client.get_context_names()
     if names_status[0]:
         names = sorted(names_status[2])
@@ -138,7 +140,7 @@ if __name__ == "__main__":
     current_context = click.prompt("Enter a new or existing context name: ", type=click.types.STRING,
                                    default=default_context_name)
 
-    # Create a default context
+    # Now create a default context
     stat = start_context(current_context, args['host'], args['port'])
     if not stat[0]:
         print("Unable to create context '{}'".format(current_context))
@@ -318,7 +320,7 @@ if __name__ == "__main__":
                 continue
 
             # Get the next question from the loaded question file
-            if auto_question or human_msg == ".q":
+            if auto_question or human_msg == ".ask":
                 human_msg = questions[question_index].strip()
                 print("{}. {}".format(question_index + 1, human_msg))
                 question_index += 1
@@ -361,7 +363,8 @@ if __name__ == "__main__":
             # Send a prompt to the LLM and stream the response
             max_line_len = 120
             current_line_len = 0
-            pattern = r'(.*?)[:\.]\d+\.'
+            pattern = r'(.*?)[.: ]\d+\.'
+
             try:
                 resp_gen, resp_id = contexts[current_context].submit_directive(human_msg)
                 for word in resp_gen:

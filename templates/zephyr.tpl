@@ -1,5 +1,6 @@
+ContextStandard
 <|system|>
-Act as friendly and polite chatbot that answers general questions one at a time.</s>
+{system}</s>
 <|user|>
 Context:
 {history}

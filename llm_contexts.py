@@ -14,7 +14,6 @@ from langchain.callbacks.base import BaseCallbackHandler
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, ConversationChain
 from langchain.memory import ConversationBufferWindowMemory
-
 from llm_streamers import PromptCallbackHandler
 
 
@@ -30,9 +29,12 @@ class Context(ABC):
         self._template_file = template_file
         self._history_count = history_count * 2
         self._out_streamer = streamer
-        self._system_prompt = system_prompt
-
         self._history = []
+
+        if system_prompt is not None and len(system_prompt) > 0:
+            self._system_prompt = system_prompt
+        else:
+            self._system_prompt = "Act as friendly and polite chatbot that answers questions."
 
         # Set up the history summerizer
         self._nlp = None
@@ -92,7 +94,7 @@ class Context(ABC):
 
         max_freq = Counter(keyword).most_common(1)[0][1]
         for word in freq_word.keys():
-            freq_word[word] = int(freq_word[word]/max_freq)
+            freq_word[word] = int(freq_word[word] / max_freq)
         freq_word.most_common(5)
 
         sent_strength = {}
@@ -110,7 +112,8 @@ class Context(ABC):
         return summary
 
     def summerize_abstractive(self, text: str) -> str:
-        text_sum = self._summarizer(text, min_length=10, max_length=80)
+        logging.info("Length of abstractive input text: " + str(len(text)))
+        text_sum = self._summarizer(text, min_length=10, max_length=80, truncation=True)
         summary = ' '.join([i['summary_text'] for i in text_sum])
         return summary
 
@@ -221,7 +224,7 @@ class ContextInstruct(Context):
         self._j_template = j_environ.from_string(self._template_text)
         logging.info("Loaded template '{}' into context {}".format(template_file, self._name))
         self._template_file = template_file
-        self._template_rendered_text = ""   # Not rendered yet
+        self._template_rendered_text = ""  # Not rendered yet
         return True
 
 
@@ -230,7 +233,7 @@ class ContextStandard(Context):
                  system_prompt: Union[str, None] = None,
                  summerizer_type: str = 'extractive',
                  streamer: Union[BaseCallbackHandler, None] = None):
-        super().__init__(name, llm, template_file, history_count, system_prompt, summerizer_type, streamer)
+        super().__init__(name, llm, template_file, history_count, system_prompt, 'none', streamer)
 
         self._prompt = None
         self._input_vars = ["input", "history"]
@@ -246,6 +249,13 @@ class ContextStandard(Context):
         self._chat_memory.clear()
 
     def predict(self, stream_id, prompt):
+        if self._template_text.find('{system}') != -1:
+            self._template_rendered_text = self._template_text.replace('{system}', self._system_prompt)
+        else:
+            self._template_rendered_text = self._template_text
+        self._prompt = PromptTemplate(input_variables=self._input_vars,
+                                      template=self._template_rendered_text)
+
         ccc = ConversationChain(
             llm=self._llm,
             prompt=self._prompt,
@@ -256,7 +266,8 @@ class ContextStandard(Context):
         if self._out_streamer:
             # Wait while streaming the output
             self._out_streamer.id = stream_id
-            result = ccc.predict([self._out_streamer, PromptCallbackHandler()], input=prompt)
+            result = ccc.predict([self._out_streamer, PromptCallbackHandler()],
+                                 input=prompt)
         else:
             # Wait quietly for the full result
             result = ccc.predict(input=prompt)
@@ -280,13 +291,13 @@ class ContextStandard(Context):
     def load_template(self, template_file) -> bool:
         try:
             with open('templates/' + template_file, 'r') as f:
-                self._template_text = f.read()
-                self._prompt = PromptTemplate(input_variables=self._input_vars,
-                                              template=self._template_text)
-                logging.info("Loaded standard template '{}' into context {}".format(template_file,
-                                                                                    self._name))
-                self._template_file = template_file
-                return True
+                lines = f.readlines()
+                # Throw out the first line which has the context type
+                self._template_text = ''.join(lines[1:])
         except FileNotFoundError:
             logging.warning("Template file '{}' not found.".format(template_file))
             return False
+
+        logging.info("Loaded standard template '{}' into context {}".format(template_file, self._name))
+        self._template_file = template_file
+        return True
