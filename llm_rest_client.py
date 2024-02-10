@@ -75,6 +75,14 @@ class ContextClient:
         else:
             return None
 
+    # Get a context's information
+    def get_information(self):
+        resp = requests.get(self._con_url + "info/" + self._name)
+        if resp.status_code == 200:
+            return resp.json()['detail']
+        else:
+            return None
+
     # Set context's system prompt
     def set_system_prompt(self, prompt: str):
         json = {"system_prompt": prompt}

@@ -57,6 +57,16 @@ class Context(ABC):
         self._template_text = ""
         self._template_rendered_text = ""
 
+    def get_information(self):
+        return {
+            "context_type": self.__class__.__name__,
+            "summarizer_type": self._summerizer_type,
+            "streamer_type": type(self._out_streamer).__name__,
+            "system_prompt": self._system_prompt,
+            "template_file": self._template_file,
+            "history_count": self._history_count / 2
+        }
+
     @abstractmethod
     def erase_memory(self):
         pass
@@ -69,16 +79,16 @@ class Context(ABC):
     def load_template(self, template_file) -> bool:
         pass
 
-    def summerize(self, text: str) -> str:
+    def _summerize(self, text: str) -> str:
         if self._summerizer_type == 'abstractive':
-            return self.summerize_abstractive(text)
+            return self._summerize_abstractive(text)
 
         elif self._summerizer_type == 'extractive':
-            return self.summerize_extractive(text)
+            return self._summerize_extractive(text)
 
         return text
 
-    def summerize_extractive(self, text: str) -> str:
+    def _summerize_extractive(self, text: str) -> str:
         doc = self._nlp(text)
 
         keyword = []
@@ -111,7 +121,7 @@ class Context(ABC):
         summary = ' '.join(final_sentences)
         return summary
 
-    def summerize_abstractive(self, text: str) -> str:
+    def _summerize_abstractive(self, text: str) -> str:
         logging.info("Length of abstractive input text: " + str(len(text)))
         text_sum = self._summarizer(text, min_length=10, max_length=80, truncation=True)
         summary = ' '.join([i['summary_text'] for i in text_sum])
@@ -205,7 +215,7 @@ class ContextInstruct(Context):
             self._history.append(query)
 
             # Summerize the response before saving it to history
-            summerized = self.summerize(result['text'].strip())
+            summerized = self._summerize(result['text'].strip())
             self._history.append({'role': 'assistant', 'content': summerized})
 
         return result['text'].strip(), summerized
@@ -231,7 +241,7 @@ class ContextInstruct(Context):
 class ContextStandard(Context):
     def __init__(self, name, llm, template_file: str, history_count: int,
                  system_prompt: Union[str, None] = None,
-                 summerizer_type: str = 'extractive',
+                 _summerizer_type: str = 'extractive',
                  streamer: Union[BaseCallbackHandler, None] = None):
         super().__init__(name, llm, template_file, history_count, system_prompt, 'none', streamer)
 
@@ -283,7 +293,7 @@ class ContextStandard(Context):
             self._history.append(query)
 
             # Summerize the response and save it to history
-            summerized = self.summerize(result.strip())
+            summerized = self._summerize(result.strip())
             self._history.append({'role': 'assistant', 'content': summerized})
 
         return result.strip(), summerized

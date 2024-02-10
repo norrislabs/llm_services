@@ -97,6 +97,13 @@ def display_model_info():
     print()
 
 
+def display_context_info(cname):
+    print("Current information for context '{}':".format(cname))
+    info = contexts[cname].get_information()
+    print(json.dumps(info, indent=4))
+    print()
+
+
 if __name__ == "__main__":
     print(pyfiglet.figlet_format("LLM Client"))
 
@@ -168,8 +175,16 @@ if __name__ == "__main__":
                 continue
 
             # Display model info
-            if human_msg == ".info":
-                display_model_info()
+            if human_msg.startswith(".info"):
+                cmd_items = human_msg.split()
+                if len(cmd_items) == 2:
+                    if cmd_items[1] == "model":
+                        display_model_info()
+                        continue
+                    elif cmd_items[1] == "context":
+                        display_context_info(current_context)
+                        continue
+                print("Invalid command.")
                 continue
 
             if human_msg == ".help":

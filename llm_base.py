@@ -150,6 +150,13 @@ class BaseLanguageModel(ABC):
             logging.error("Unknown context '{}'.".format(context_name))
             return False
 
+    def get_context_info(self, context_name: str) -> Union[dict, None]:
+        if context_name in self._contexts:
+            return self._contexts[context_name].get_information()
+        else:
+            logging.error("Unknown context '{}'.".format(context_name))
+            return None
+
     def submit_directive(self, context_name: str, msg: str) -> Union[str, None]:
         # Add new human message to the LLM queue
         if context_name in self._contexts:

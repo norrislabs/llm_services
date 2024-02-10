@@ -105,6 +105,16 @@ async def stream_response(name: str):
                             detail="Context '{}' does not exist".format(name))
 
 
+@app.get('/context/info/{name}')
+async def get_context_info(name: str):
+    info = app.extra['llm'].get_context_info(name)
+    if info is None:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="Context '{}' info does not exist".format(name))
+    else:
+        return ReturnData(name=name, detail=info)
+
+
 @app.put("/context/template/{name}")
 def load_template(name: str, cspec: ContextSpec) -> ReturnData:
     if app.extra['llm'].load_template(name, cspec.template):
