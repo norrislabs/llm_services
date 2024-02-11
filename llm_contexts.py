@@ -123,7 +123,7 @@ class Context(ABC):
 
     def _summerize_abstractive(self, text: str) -> str:
         logging.info("Length of abstractive input text: " + str(len(text)))
-        text_sum = self._summarizer(text, min_length=10, max_length=80, truncation=True)
+        text_sum = self._summarizer(text, min_length=10, max_length=128, truncation=True)
         summary = ' '.join([i['summary_text'] for i in text_sum])
         return summary
 
