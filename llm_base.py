@@ -79,8 +79,8 @@ class BaseLanguageModel(ABC):
 
                     # Send directive message to the selected context
                     # This blocks here while working
-                    self._last_result = self._contexts[directive.context_name].predict(directive.response_id,
-                                                                                       directive.msg)
+                    self._last_result = self._contexts[directive.context_name].submit_directive(directive.response_id,
+                                                                                                directive.msg)
 
                     logging.info("Completed directive in context '{}'\n\n".format(directive.context_name))
                 else:
@@ -152,7 +152,7 @@ class BaseLanguageModel(ABC):
 
     def get_context_info(self, context_name: str) -> Union[dict, None]:
         if context_name in self._contexts:
-            return self._contexts[context_name].get_information()
+            return self._contexts[context_name].get_context_info()
         else:
             logging.error("Unknown context '{}'.".format(context_name))
             return None

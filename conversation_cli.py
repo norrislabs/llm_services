@@ -99,7 +99,7 @@ def display_model_info():
 
 def display_context_info(cname):
     print("Current information for context '{}':".format(cname))
-    info = contexts[cname].get_information()
+    info = contexts[cname].get_context_info()
     print(json.dumps(info, indent=4))
     print()
 

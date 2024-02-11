@@ -57,7 +57,7 @@ class Context(ABC):
         self._template_text = ""
         self._template_rendered_text = ""
 
-    def get_information(self):
+    def get_context_info(self):
         return {
             "context_type": self.__class__.__name__,
             "summarizer_type": self._summerizer_type,
@@ -72,7 +72,7 @@ class Context(ABC):
         pass
 
     @abstractmethod
-    def predict(self, stream_id, message):
+    def submit_directive(self, stream_id, message):
         pass
 
     @abstractmethod
@@ -169,7 +169,7 @@ class ContextInstruct(Context):
     def erase_memory(self):
         self._history = []
 
-    def predict(self, stream_id, message):
+    def submit_directive(self, stream_id, message):
         # Build messages list from message and history
         messages = []
 
@@ -258,7 +258,7 @@ class ContextStandard(Context):
     def erase_memory(self):
         self._chat_memory.clear()
 
-    def predict(self, stream_id, prompt):
+    def submit_directive(self, stream_id, prompt):
         if self._template_text.find('{system}') != -1:
             self._template_rendered_text = self._template_text.replace('{system}', self._system_prompt)
         else:

@@ -1,6 +1,6 @@
 .quit                                   Exit program
 .cls                                    Clear screen
-.info                                   Display model information
+.info [model|context]                   Display model or context information
 .restart                                Reset LLM server and model
 .paste                                  Paste the prompt from clipboard
 .start context-name [history-count]     Create a new context

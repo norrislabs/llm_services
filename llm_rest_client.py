@@ -76,7 +76,7 @@ class ContextClient:
             return None
 
     # Get a context's information
-    def get_information(self):
+    def get_context_info(self):
         resp = requests.get(self._con_url + "info/" + self._name)
         if resp.status_code == 200:
             return resp.json()['detail']
