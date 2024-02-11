@@ -133,14 +133,14 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("file", default="paste", help="File to summerize")
     ap.add_argument("-s", "--type", default="all", help="Summarize type")
-    ap.add_argument("-m", "--max", type=int, default=100, help="max size")
+    ap.add_argument("-m", "--max", type=int, default=128, help="max size")
     ap.add_argument("-t", "--host", type=str, default="ai-001.local", help="server host")
     ap.add_argument("-p", "--port", type=int, default=8080, help="server port")
     args = vars(ap.parse_args())
 
     if len(args) == 0 or args["file"] == "paste":
         # From clipboard
-        raw_text = pyperclip.paste().strip()
+        raw_text = pyperclip.paste().strip()[:8192]
         print("Text from clipboard:")
     else:
         # from text file
