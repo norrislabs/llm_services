@@ -91,7 +91,7 @@ def display_model_info():
     # Display LLM model information
     global args
     print("Current model information:")
-    info = llm_client.get_model_info()[2]
+    info = llm_client.get_model_info()[2]["detail"]
     info['host'] = args['host'] + ':' + str(args['port'])
     print(json.dumps(info, indent=4))
     print()
@@ -128,8 +128,8 @@ if __name__ == "__main__":
 
     # List current existing contexts
     names_status = llm_client.get_context_names()
-    if names_status[0]:
-        names = sorted(names_status[2])
+    if names_status[1] == 200:
+        names = sorted(names_status[2]["detail"])
         if len(names) > 0:
             print("The following contexts are active:")
             for name in names:
@@ -327,8 +327,8 @@ if __name__ == "__main__":
             # List all current contexts
             if human_msg == ".list":
                 names_status = llm_client.get_context_names()
-                if names_status[0]:
-                    for name in sorted(names_status[2]):
+                if names_status[1] == 200:
+                    for name in sorted(names_status[2]["detail"]):
                         print_info(name, 2)
                 else:
                     print_error("Error {} getting names of contexts.".format(names_status[1]))

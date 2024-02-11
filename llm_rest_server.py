@@ -2,7 +2,6 @@ import pyfiglet
 import argparse
 import logging
 import asyncio
-from typing import List, Dict
 from pydantic import BaseModel, typing, Field
 
 from fastapi.responses import StreamingResponse
@@ -51,14 +50,15 @@ async def shutdown_llm() -> ReturnData:
 
 
 @app.get("/llm/list")
-async def list_contexts() -> List[str]:
+async def list_contexts() -> ReturnData:
     names = app.extra['llm'].get_context_names()
-    return names
+    return ReturnData(name="llm", detail=names)
 
 
 @app.get("/llm/info")
-async def model_info() -> Dict:
-    return app.extra['llm'].model_info
+async def model_info() -> ReturnData:
+    info = app.extra['llm'].model_info
+    return ReturnData(name="llm", detail=info)
 
 
 @app.post("/context/{name}")
