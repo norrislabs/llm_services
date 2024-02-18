@@ -1,23 +1,26 @@
-import os
 import time
 from langchain.chains import MapReduceDocumentsChain, LLMChain, ReduceDocumentsChain, StuffDocumentsChain
 from langchain_community.document_loaders import NewsURLLoader
-from langchain_community.llms import CTransformers
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.llms import LlamaCpp
 
 
-def summarize_article(article_url):
+def summarize_article(article_url, model_path, gpu_layers):
     # Load article
     loader = NewsURLLoader([article_url])
     docs = loader.load()
 
     # Load LLM
-    config = {'max_new_tokens': 4096, 'temperature': 0.7, 'context_length': 4096, 'gpu_layers': 1}
-    llm = CTransformers(model="TheBloke/Mistral-7B-Instruct-v0.1-GGUF",
-                        model_file="mistral-7b-instruct-v0.1.Q4_K_M.gguf",
-                        config=config,
-                        threads=os.cpu_count())
+    llm = LlamaCpp(
+        model_path=model_path,
+        temperature=0.7,
+        max_tokens=4096,
+        n_ctx=4096,
+        n_gpu_layers=gpu_layers,
+        top_p=1,
+        n_batch=512,
+    )
 
     # Map template and chain
     map_template = """<s>[INST] The following is a part of an article:
@@ -73,4 +76,4 @@ def summarize_article(article_url):
     start_time = time.time()
     result = map_reduce_chain.invoke({'input_documents': split_docs}, return_only_outputs=True)
     time_taken = time.time() - start_time
-    return result['output_text'], time_taken
+    return result, time_taken
