@@ -10,6 +10,7 @@ def summarize_article(article_url, model_path, gpu_layers):
     # Load article
     loader = NewsURLLoader([article_url])
     docs = loader.load()
+    print(type(docs[0]), dir(docs[0]))
 
     # Load LLM
     llm = LlamaCpp(
