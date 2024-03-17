@@ -114,7 +114,7 @@ class ContextClient:
             self._current_respid = resp.json()['detail']
             return self.response_generator(), self._current_respid
         else:
-            return ['|ERROR-{}|'.format(resp.status_code)]
+            return None, '|ERROR-{}, {}, {}|'.format(resp.status_code, resp.reason, resp.text)
 
     # Just send directive and return
     # Used with response_generator to do stuff between the directive and getting a response

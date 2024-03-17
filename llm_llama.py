@@ -27,7 +27,7 @@ class LlamaModel(BaseLanguageModel):
             top_p=1,
             n_batch=512,
             verbose=verbose,
-            repeat_penalty=1.2
+            repetition_penalty=1.18
         )
 
         return llm, model_info

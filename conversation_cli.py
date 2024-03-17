@@ -382,23 +382,26 @@ if __name__ == "__main__":
 
             try:
                 resp_gen, resp_id = contexts[current_context].submit_directive(human_msg)
-                for word in resp_gen:
-                    if not filter_words(word):
-                        wd = word.replace("\n", "")
+                if resp_gen is not None:
+                    for word in resp_gen:
+                        if not filter_words(word):
+                            wd = word.replace("\n", "")
 
-                        # Split numbered lines
-                        match = re.match(pattern, wd)
-                        if match is not None:
-                            wd = wd[0:len(match.group(1))+1] + "\n" + wd[len(match.group(1))+1:]
-                            current_line_len = len(match.group(1))+1
+                            # Split numbered lines
+                            match = re.match(pattern, wd)
+                            if match is not None:
+                                wd = wd[0:len(match.group(1))+1] + "\n" + wd[len(match.group(1))+1:]
+                                current_line_len = len(match.group(1))+1
 
-                        # Word wrap
-                        current_line_len += len(wd) + 1
-                        if current_line_len > max_line_len:
-                            print('\n', end='', flush=True)
-                            current_line_len = 0
+                            # Word wrap
+                            current_line_len += len(wd) + 1
+                            if current_line_len > max_line_len:
+                                print('\n', end='', flush=True)
+                                current_line_len = 0
 
-                        print(context_colors[current_context] + wd + " ", end="", flush=True)
+                            print(context_colors[current_context] + wd + " ", end="", flush=True)
+                else:
+                    print_error("{}".format(resp_id))
                 print(Fore.RESET)
 
             except ValueError as ex:

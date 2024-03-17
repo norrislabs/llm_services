@@ -1,0 +1,16 @@
+pydantic
+langchain
+Jinja2
+feedparser
+pyfiglet
+beautifulsoup4
+spacy
+transformers
+demoji
+pyperclip
+requests
+uvicorn
+fastapi
+click
+colorama
+streamlit
