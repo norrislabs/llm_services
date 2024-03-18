@@ -94,13 +94,14 @@ class BaseLanguageModel(ABC):
                        history_count: int = 2,
                        system_prompt: Union[str, None] = None,
                        summerizer_type: str = "abstractive",
-                       streamer_type: Union[str, None] = None, **streamer_params) -> bool:
+                       streamer_type: Union[str, None] = None, **streamer_params) -> (bool, str):
         if context_name not in self._contexts:
             # Select prompt template (specified here or specified with the LLM)
             templ_file = template_file if template_file else self._default_template_file
             if not templ_file:
-                logging.error("Context '{}' does not have a template.".format(context_name))
-                return False
+                msg = "Context '{}' does not have a template.".format(context_name)
+                logging.error(msg)
+                return False, msg
 
             # Setup a streamer
             streamer = None
@@ -113,8 +114,9 @@ class BaseLanguageModel(ABC):
                     # Read the first line from the file
                     template_type = file.readline().strip()
             except FileNotFoundError:
-                logging.warning("Template file '{}' not found.".format(template_file))
-                return False
+                msg = "Template file '{}' not found.".format(templ_file)
+                logging.error(msg)
+                return False, msg
 
             try:
                 # Import the module dynamically
@@ -122,16 +124,19 @@ class BaseLanguageModel(ABC):
                 conv = getattr(module, template_type)(context_name, self._llm, templ_file, history_count,
                                                       system_prompt, summerizer_type, streamer)
             except AttributeError:
-                logging.error("Context type '{}' does not exist.".format(template_type))
-                return False
+                msg = "Context type '{}' does not exist.".format(template_type)
+                logging.error(msg)
+                return False, msg
 
             self._contexts[context_name] = conv
-            logging.info("Started {} context '{}' with history of {}.".format(template_type, context_name,
-                                                                              history_count))
-            return True
+            msg = "Started {} context '{}' with history of {}.".format(template_type, context_name,
+                                                                       history_count)
+            logging.info(msg)
+            return True, msg
         else:
-            logging.warning("Reusing context '{}'.".format(context_name))
-            return False
+            msg = "Reusing context '{}'.".format(context_name)
+            logging.warning(msg)
+            return False, msg
 
     def delete_context(self, context_name: str) -> bool:
         if context_name in self._contexts:

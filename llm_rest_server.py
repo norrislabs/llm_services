@@ -63,16 +63,17 @@ async def model_info() -> ReturnData:
 
 @app.post("/context/{name}")
 def create_context(name: str, cspec: ContextSpec) -> ReturnData:
-    if app.extra['llm'].create_context(name,
-                                       template_file=cspec.template,
-                                       history_count=cspec.history,
-                                       system_prompt=cspec.system_prompt,
-                                       summerizer_type=cspec.summerizer_type,
-                                       streamer_type='queue'):
-        return ReturnData(name=name, detail="Context '{}' created with history of {}".format(name,
-                                                                                             cspec.history))
+    success, msg = app.extra['llm'].create_context(name,
+                                                   template_file=cspec.template,
+                                                   history_count=cspec.history,
+                                                   system_prompt=cspec.system_prompt,
+                                                   summerizer_type=cspec.summerizer_type,
+                                                   streamer_type='queue')
+    if success:
+        return ReturnData(name=name, detail="Context '{}' created".format(name))
     else:
-        return ReturnData(name=name, detail="Reusing context '{}'".format(name))
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            detail="Context '{}' error: {}".format(name, msg))
 
 
 @app.delete("/context/{name}")

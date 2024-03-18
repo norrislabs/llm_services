@@ -48,14 +48,12 @@ class ContextClient:
             resp = requests.post(self._con_url + self._name, json=json)
             if resp.status_code == 200:
                 self._last_loaded_template = template
-                tresp = self.get_template()
-                if not tresp:
-                    return False, 422, {}
+                temp_status = self.get_template()
+                return temp_status
+            return self._build_return_status(resp)
 
         except requests.exceptions.ConnectionError:
             return False, 422, {}
-        else:
-            return self._build_return_status(resp)
 
     # End and delete a context and its history
     def delete_context(self):

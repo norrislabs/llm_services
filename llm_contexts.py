@@ -293,6 +293,7 @@ class ContextStandard(Context):
             self._history.append(query)
 
             # Summerize the response and save it to history
+            # TODO Maybe do some additional scrubbing of the result text before summerization
             summerized = self._summerize(result.strip())
             self._history.append({'role': 'assistant', 'content': summerized})
 

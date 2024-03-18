@@ -28,8 +28,8 @@ def start_context(context_name, host, port, history=2):
     # Create a new context client
     con_client = ContextClient(context_name, host, port)
     status = con_client.create_context(history=history, system_prompt="")
-    if not status[0]:
-        print(status[1])
+    if status[1] == 422:
+        print_error(status[2]['detail'])
         return False, None
 
     # Assign the next color to the conversation for its response
